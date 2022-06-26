@@ -1,6 +1,18 @@
 const { request, response } = require("express");
 const express = require("express");
 const app = express();
+var morgan = require("morgan");
+morgan.token("body", function getBody(req) {
+  return JSON.stringify(req.body);
+});
+// middleware
+app.use(express.json());
+//app.use(morgan("tiny")); //Exercises 3.7
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+); //Exercises 3.8
+//app.use(express.urlencoded());
+
 let persons = [
   {
     id: 1,
@@ -41,7 +53,7 @@ app.get("/api/persons", (request, response) => {
 
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
-  console.log(id);
+  //console.log(id);
   const person = persons.find((person) => person.id === id);
   if (persons) {
     response.json(person);
@@ -63,14 +75,11 @@ const generateId = () => {
 	return maxId + 1;
 	*/
 };
-// middleware
-app.use(express.json());
-//app.use(express.urlencoded());
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
   //console.log(request.body);
-  console.log(body);
+  //console.log(body);
   if (!body) {
     return response.status(400).json({
       error: "content missing",
@@ -94,8 +103,9 @@ app.post("/api/persons", (request, response) => {
     const person = persons.find((person) => person.name === nametrim);
     return person;
   };
+  //console.log(ifIncluded());
 
-  if (ifIncluded) {
+  if (ifIncluded()) {
     return response.status(400).json({
       error: "name must be unique",
     });
