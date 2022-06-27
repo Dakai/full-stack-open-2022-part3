@@ -1,11 +1,13 @@
 const { request, response } = require("express");
 const express = require("express");
 const app = express();
-var morgan = require("morgan");
+const cors = require("cors");
+const morgan = require("morgan");
 morgan.token("body", function getBody(req) {
   return JSON.stringify(req.body);
 });
 // middleware
+app.use(cors({ origin: true }));
 app.use(express.json());
 //app.use(morgan("tiny")); //Exercises 3.7
 app.use(
