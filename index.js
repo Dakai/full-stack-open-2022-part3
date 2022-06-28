@@ -68,6 +68,19 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
+app.put("/api/persons/:id", (request, response) => {
+  const id = Number(request.params.id);
+  persons = persons.filter((person) => person.id !== id);
+  const body = request.body;
+  const person = {
+    id: id,
+    name: body.name,
+    number: body.number,
+  };
+  persons = persons.concat(person);
+  response.json(person);
+});
+
 const generateId = () => {
   let id = Math.floor(Math.random() * 1000);
   return id;
