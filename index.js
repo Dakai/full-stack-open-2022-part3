@@ -1,11 +1,15 @@
+require("dotenv").config();
 const { request, response } = require("express");
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const Person = require("./models/person");
+
 const morgan = require("morgan");
 morgan.token("body", function getBody(req) {
   return JSON.stringify(req.body);
 });
+
 // middleware
 app.use(cors({ origin: true }));
 app.use(express.json());
@@ -16,6 +20,32 @@ app.use(
 ); //Exercises 3.8
 //app.use(express.urlencoded());
 
+/*
+//Backend Connected to a database
+const mongoose = require("mongoose");
+const pwd = process.argv[2];
+const database = "Persons";
+
+const url = `mongodb+srv://dakai:${pwd}@cluster0.xuyas.mongodb.net/${database}?retryWrites=true&w=majority`;
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+});
+
+const Person = mongoose.model("Person", personSchema);
+
+personSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
+
+mongoose.connect(url);
+*/
+/*
 let persons = [
   {
     id: 1,
@@ -38,7 +68,7 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
-
+*/
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
 });
@@ -51,7 +81,9 @@ app.get("/info", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
-  response.json(persons);
+  Person.find({}).then((persons) => {
+    response.json(persons);
+  });
 });
 
 app.get("/api/persons/:id", (request, response) => {
@@ -158,7 +190,8 @@ app.post("/api/persons", (request, response) => {
 	*/
 });
 
-const PORT = process.env.PORT || 3001;
+//const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
