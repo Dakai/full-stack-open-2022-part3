@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build:ui": "rm -rf build && cd ../full-stack-open-2022/part2/phonebook/ && git checkout -b part3 && npm run build && cp -r build ../full-stack-open-2022-part3",
+    "build:ui": "rm -rf build && cd ../full-stack-open-2022/part2/phonebook/ && git checkout part3 && npm run build && cp -r build ~/Sync/coding/full-stack-open-2022-part3",
     "deploy": "git push heroku main",
     "deploy: full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
     "logs:prod": "heroku logs --tail",

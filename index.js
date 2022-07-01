@@ -11,9 +11,9 @@ morgan.token("body", function getBody(req) {
 });
 
 // middleware
-app.use(cors({ origin: true }));
-app.use(express.json());
 app.use(express.static("build"));
+app.use(express.json());
+app.use(cors({ origin: true }));
 //app.use(morgan("tiny")); //Exercises 3.7
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
@@ -74,10 +74,12 @@ app.get("/", (request, response) => {
 });
 
 app.get("/info", (request, response) => {
-  const entry = persons.length;
-  //const date = new Date();
-  //response.send(`Phonebook has info for {} people</br>${date}`);
-  response.send(`Phonebook has info for ${entry} people</br></br>${Date()}`);
+  Person.find({}).then((persons) => {
+    console.log(persons);
+    const entry = persons.length;
+    //const entry = Object.keys(Person).length;
+    response.send(`Phonebook has info for ${entry} people</br></br>${Date()}`);
+  });
 });
 
 app.get("/api/persons", (request, response) => {
@@ -87,20 +89,25 @@ app.get("/api/persons", (request, response) => {
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  //console.log(id);
-  const person = persons.find((person) => person.id === id);
-  if (persons) {
-    response.json(person);
-  } else response.status(404).end();
+  //const id = Number(request.params.id);
+  const id = request.params.id;
+  console.log(id);
+  Person.find({}).then((persons) => {
+    const person = persons.find((person) => person.id === id);
+    if (persons) {
+      response.json(person);
+    } else response.status(404).end();
+  });
 });
 
 app.delete("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((person) => person.id !== id);
-  response.status(204).end();
+  const id = request.params.id;
+  Person.find({}).then((persons) => {
+    persons = persons.filter((person) => person.id !== id);
+    response.status(204).end();
+  });
 });
-
+/*
 app.put("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   persons = persons.filter((person) => person.id !== id);
@@ -113,7 +120,7 @@ app.put("/api/persons/:id", (request, response) => {
   persons = persons.concat(person);
   response.json(person);
 });
-
+*/
 const generateId = () => {
   let id = Math.floor(Math.random() * 1000);
   return id;
@@ -126,8 +133,17 @@ const generateId = () => {
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
+  console.log(body);
   //console.log(request.body);
   //console.log(body);
+  //Part3 3.14
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  });
+  person.save();
+  response.json(person);
+  /*
   if (!body) {
     return response.status(400).json({
       error: "content missing",
@@ -168,8 +184,8 @@ app.post("/api/persons", (request, response) => {
     number: body.number,
   };
   persons = persons.concat(person);
-  response.json(person);
-
+	response.json(person);
+	*/
   /*
   const body = request.body;
   if (!body.content) {
