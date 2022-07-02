@@ -127,6 +127,20 @@ app.delete("/api/persons/:id", (request, response, next) => {
 });
 
 app.put("/api/persons/:id", (request, response, next) => {
+  const content = request.body;
+  Person.findByIdAndUpdate(request.params.id, content, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => next(error));
+});
+
+/*
+app.put("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
     .then(() => {
       const body = request.body;
@@ -143,6 +157,7 @@ app.put("/api/persons/:id", (request, response, next) => {
     })
     .catch((error) => next(error));
 });
+*/
 /*
 app.put("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
@@ -157,28 +172,26 @@ app.put("/api/persons/:id", (request, response) => {
   response.json(person);
 });
 */
+/*
 const generateId = () => {
   let id = Math.floor(Math.random() * 1000);
   return id;
-  /*
-  const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0;
-
-	return maxId + 1;
-	*/
-};
-
-app.post("/api/persons", (request, response) => {
+ };
+*/
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
-  console.log(body);
-  //console.log(request.body);
   //console.log(body);
   //Part3 3.14
   const person = new Person({
     name: body.name,
     number: body.number,
   });
-  person.save();
-  response.json(person);
+  person
+    .save()
+    .then(() => {
+      response.json(person);
+    })
+    .catch((error) => next(error));
   /*
   if (!body) {
     return response.status(400).json({
@@ -247,6 +260,8 @@ const errorHandler = (error, req, res, next) => {
 
   if (error.name == "CastError") {
     return res.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).json({ error: error.message });
   }
 
   next(error);
