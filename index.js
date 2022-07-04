@@ -74,7 +74,7 @@ app.get("/", (request, response) => {
 
 app.get("/info", (request, response) => {
   Person.find({}).then((persons) => {
-    console.log(persons);
+    //console.log(persons);
     const entry = persons.length;
     //const entry = Object.keys(Person).length;
     response.send(`Phonebook has info for ${entry} people</br></br>${Date()}`);
@@ -180,18 +180,29 @@ const generateId = () => {
 */
 app.post("/api/persons", (request, response, next) => {
   const body = request.body;
-  //console.log(body);
-  //Part3 3.14
-  const person = new Person({
-    name: body.name,
-    number: body.number,
+  Person.find({}).then((persons) => {
+    const duplicated_name = persons.find((person) => person.name === body.name);
+    console.log(duplicated_name);
+    if (duplicated_name) {
+      return response
+        .status(400)
+        .json({
+          error: "name must be unique",
+        })
+        .end();
+    } else {
+      const person = new Person({
+        name: body.name,
+        number: body.number,
+      });
+      person
+        .save()
+        .then(() => {
+          response.json(person);
+        })
+        .catch((error) => next(error));
+    }
   });
-  person
-    .save()
-    .then(() => {
-      response.json(person);
-    })
-    .catch((error) => next(error));
   /*
   if (!body) {
     return response.status(400).json({
